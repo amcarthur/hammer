@@ -1,0 +1,11 @@
+[package]
+name = "hammer"
+version = "0.1.0"
+authors = ["Aidan McArthur <aidan.b.mcarthur@gmail.com>"]
+
+[dependencies]
+winapi = "0.2.8"
+user32-sys = "0.2"
+kernel32-sys = "0.2.2"
+widestring = "0.2.2"
+pe = "0.1.1"
