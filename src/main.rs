@@ -788,8 +788,10 @@ fn call_remote_function(process_handle: winapi::HANDLE, module_handle: winapi::m
 
     if thread_handle == null_mut() {
         println!("Failed to call the remote function.");
-        unsafe {
-            kernel32::VirtualFreeEx(process_handle, remote_arg, argument_size, winapi::winnt::MEM_RELEASE);
+        if argument_size > 0 {
+            unsafe {
+                kernel32::VirtualFreeEx(process_handle, remote_arg, argument_size, winapi::winnt::MEM_RELEASE);
+            }
         }
         return false;
     }
@@ -797,7 +799,9 @@ fn call_remote_function(process_handle: winapi::HANDLE, module_handle: winapi::m
     unsafe {
         kernel32::WaitForSingleObject(thread_handle, winapi::winbase::INFINITE);
         kernel32::CloseHandle(thread_handle);
-        kernel32::VirtualFreeEx(process_handle, remote_arg, argument_size, winapi::winnt::MEM_RELEASE);
+        if argument_size > 0 {
+            kernel32::VirtualFreeEx(process_handle, remote_arg, argument_size, winapi::winnt::MEM_RELEASE);
+        }
     }
     return true;
 }
