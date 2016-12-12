@@ -716,13 +716,57 @@ fn call_remote_function(process_handle: winapi::HANDLE, module_handle: winapi::m
 
     let module_path: PathBuf = find_remote_module_path_by_handle(process_id, module_handle);
     if !module_path.exists() {
+         println!("Could not find the remote module.");
+            return false;
     }
 
-    let mut file = OpenOptions::new().read(true).write(false).truncate(false).append(false).open(module_path).unwrap();
+    let open_file_result = OpenOptions::new().read(true).write(false).truncate(false).append(false).open(module_path);
+    let mut file: std::fs::File;
+
+    match open_file_result {
+        Ok(f) => {
+            file = f;
+        },
+        Err(_) => {
+            println!("Failed to open the remote module.");
+            return false;
+        }
+    }
+
 	let mut buf=vec![];
-	file.read_to_end(&mut buf).unwrap();
-	let pe_file = pe::Pe::new(&buf).unwrap();
-    let export_dir = pe_file.get_exports().unwrap();
+    let read_result = file.read_to_end(&mut buf);
+    match read_result {
+        Ok(_) => {},
+        Err(_) => {
+            println!("Failed reading the remote module.");
+            return false;
+        }
+    }
+	
+	let pe_file_result = pe::Pe::new(&buf);
+    let pe_file: pe::Pe;
+    match pe_file_result {
+        Ok(p) => {
+            pe_file = p;
+        },
+        Err(_) => {
+            println!("Failed parsing the remote module header.");
+            return false;
+        }
+    }
+
+    let export_dir_result = pe_file.get_exports();
+    let export_dir: pe::Exports;
+    match export_dir_result {
+        Ok(d) => {
+            export_dir = d;
+        },
+        Err(_) => {
+            println!("Failed parsing the remote module export directory.");
+            return false;
+        }
+    }
+
     let remote_fn = export_dir.lookup_symbol(function_name.to_str().unwrap());
     let remote_fn_rva: pe::ExportAddress;
 
