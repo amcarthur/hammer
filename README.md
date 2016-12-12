@@ -24,6 +24,7 @@ A simple DLL injector made with Rust
 [pe-rs](https://github.com/jethrogb/pe-rs)<br/>
 [winapi-rs](https://github.com/retep998/winapi-rs)<br/>
 [widestring-rs](https://github.com/starkat99/widestring-rs)<br/>
+[Blackbone](https://github.com/DarthTon/Blackbone)<br/>
 
 __A special thanks to the wonderful community on #rust (irc.mozilla.org)__
 __Especially__
