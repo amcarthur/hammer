@@ -723,10 +723,19 @@ fn call_remote_function(process_handle: winapi::HANDLE, module_handle: winapi::m
 	file.read_to_end(&mut buf).unwrap();
 	let pe_file = pe::Pe::new(&buf).unwrap();
     let export_dir = pe_file.get_exports().unwrap();
-    let remote_fn = export_dir.lookup_symbol(function_name.to_str().unwrap()).unwrap();
+    let remote_fn = export_dir.lookup_symbol(function_name.to_str().unwrap());
+    let remote_fn_rva: pe::ExportAddress;
+
+    match remote_fn {
+        Ok(rva) => { remote_fn_rva = rva; },
+        Err(_) => { 
+            println!("Could not find the remote function {:?}.", function_name);
+            return false;
+        }
+    };
 
     use pe::ExportAddress as EA;
-	let offset = match remote_fn {
+	let offset = match remote_fn_rva {
 		EA::Export(rva) => rva.get(),
 		EA::Forwarder(rva) => rva.get(),
 	};
