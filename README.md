@@ -19,3 +19,16 @@ A simple DLL injector made with Rust
 * Manual Map
 * Support injecting x64 DLL's into WoW64
 * Stealth methods
+
+# Credits
+[pe-rs](https://github.com/jethrogb/pe-rs)<br/>
+[winapi-rs](https://github.com/retep998/winapi-rs)<br/>
+[widestring-rs](https://github.com/starkat99/widestring-rs)<br/>
+
+__A special thanks to the wonderful community on #rust (irc.mozilla.org)__
+__Especially__
+* ubsan
+* WindowsBunny
+* Fenrir
+* Arnavion
+* I'm sorry, I definitely forgot a couple more
