@@ -49,6 +49,9 @@ fn main() {
             return;
         }
 
+        let dll_path_buf: PathBuf = std::fs::canonicalize(dll_path).unwrap();
+        let dll_path_real: &Path = Path::new(dll_path_buf.as_path());
+
         let mut process_ids: Vec<u32> = Vec::new();
 
         match process_arg.to_string().unwrap().parse::<u32>() {
@@ -79,12 +82,12 @@ fn main() {
                 continue;
             }
 
-            let remote_module: winapi::minwindef::HMODULE = find_remote_module_by_path(*p, dll_path);
+            let remote_module: winapi::minwindef::HMODULE = find_remote_module_by_path(*p, dll_path_real);
             if remote_module != null_mut() {
                 println!("DLL already exists in process. HMODULE: {:?}.", remote_module);
                 println!("Injection failed.");
             } else {
-                if inject_library(process_handle, &dll_path) {
+                if inject_library(process_handle, &dll_path_real) {
                     println!("Successfully injected {:?} into {:?}.", dll_path, p);
                 } else {
                     println!("Injection failed.");
@@ -141,7 +144,9 @@ fn main() {
                 let module_name: WideCString = WideCString::from_str(dll_path.file_name().unwrap()).unwrap();
                 module_handle = find_remote_module_by_name(*p, &module_name);
             } else {
-                module_handle = find_remote_module_by_path(*p, &dll_path);
+                let dll_path_buf: PathBuf = std::fs::canonicalize(dll_path).unwrap();
+                let dll_path_real: &Path = Path::new(dll_path_buf.as_path());
+                module_handle = find_remote_module_by_path(*p, &dll_path_real);
             }
 
             if module_handle == null_mut() {
@@ -183,6 +188,9 @@ fn main() {
             return;
         }
 
+        let dll_path_buf: PathBuf = std::fs::canonicalize(dll_path).unwrap();
+        let dll_path_real: &Path = Path::new(dll_path_buf.as_path());
+
         let command_line: WideCString;
         if arguments_length > 4 {
             command_line = WideCString::from_str(&arguments[4]).unwrap();
@@ -200,7 +208,7 @@ fn main() {
         let working_dir_path: &Path = Path::new(&working_dir_arg_os_str);
 
         let mut create_proc_id: u32 = 0;
-        create_process_and_inject_library(&exe_path, &dll_path, &command_line, &working_dir_path, &mut create_proc_id);
+        create_process_and_inject_library(&exe_path, &dll_path_real, &command_line, &working_dir_path, &mut create_proc_id);
         println!("Created and injected into process successfully. New process id: {:?}", create_proc_id);
 
     } else if command_arg == call_command {
